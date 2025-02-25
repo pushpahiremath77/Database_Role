@@ -1,5 +1,5 @@
 ---
-db_name: chatappdb
-db_user: chatappuser
-db_password: Pushpa@123
+db_name: ******db
+db_user: cha******
+db_password: *****************
 listen_address: '*'
