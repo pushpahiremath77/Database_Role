@@ -1,0 +1,7 @@
+---
+# defaults/main.yml
+
+postgres_db_name: pushpadb
+postgres_user: pushpa
+postgres_password: Pushpa@123
+listen_address: '*'

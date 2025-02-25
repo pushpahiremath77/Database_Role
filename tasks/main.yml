@@ -1,0 +1,44 @@
+---
+- name: Install PostgreSQL
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+    state: present
+    update_cache: yes
+
+- name: Enable and start PostgreSQL service
+  systemd:
+    name: postgresql
+    enabled: yes
+    state: started
+
+- name: Execute PostgreSQL commands using a loop
+  shell: |
+    sudo -u postgres psql -c "{{ item }}"
+  args:
+    executable: /bin/bash
+  loop:
+    - "CREATE DATABASE {{ db_name }};"
+    - "CREATE USER {{ db_user }} WITH PASSWORD '{{ db_password }}';"
+    - "GRANT ALL PRIVILEGES ON DATABASE {{ db_name }} TO {{ db_user }};"
+    - "ALTER DATABASE {{ db_name }} OWNER TO {{ db_user }};"
+  become: true
+  register: psql_output
+
+
+
+- name: Allow remote connections in postgresql.conf
+  lineinfile:
+    path: /etc/postgresql/16/main/postgresql.conf
+    regexp: "^#?listen_addresses ="
+    line: "listen_addresses = '*'"
+
+- name: Add authentication rule to pg_hba.conf
+  lineinfile:
+    path: /etc/postgresql/16/main/pg_hba.conf
+    line: "host all all 0.0.0.0/0 md5"
+    insertafter: EOF
+  notify:
+   - Restart PostgreSQL
